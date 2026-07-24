@@ -17,8 +17,9 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH=/install/bin:$PATH \
     PYTHONPATH=/install/lib/python3.11/site-packages:/app/src
-RUN groupadd --system --gid 1001 fraud && \
-    useradd --system --uid 1001 --gid fraud --create-home --home-dir /home/fraud fraud
+RUN apt-get update && apt-get install -y --no-install-recommends wget && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system --gid 1001 fraud \
+    && useradd --system --uid 1001 --gid fraud --create-home --home-dir /home/fraud fraud
 COPY --from=builder /install /install
 COPY --from=builder /build/src/ /app/src/
 COPY migrations /app/migrations
