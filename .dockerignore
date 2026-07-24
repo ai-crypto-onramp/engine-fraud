@@ -1,0 +1,33 @@
+# Caches & venvs
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+__pycache__/
+*.pyc
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Test/coverage artifacts
+coverage.xml
+.coverage
+htmlcov/
+tests/
+
+# ML artifacts (regenerable in dev; mount in prod)
+mlflow.db
+mlruns/
+data/
+
+# Git & metadata
+.git/
+.gitignore
+.github/
+PROJECT_PLAN.md
+README.md
+Makefile
+docker-compose.yml
+codecov.yml

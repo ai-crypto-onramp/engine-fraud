@@ -1,0 +1,18 @@
+# Dev/test/training-only dependencies. Not installed in the runtime image.
+-r requirements.txt
+
+# Testing
+pytest
+pytest-asyncio
+pytest-cov
+
+# Lint / type-check
+ruff
+mypy
+
+# Training-only (mlflow is imported only in src/fraud_detection/training/* and
+# src/fraud_detection/registry.py with a guarded `try: import mlflow`).
+mlflow
+
+# Optional feature store (src/fraud_detection/feature_store.py guards the import).
+feast[redis]

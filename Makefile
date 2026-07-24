@@ -1,6 +1,7 @@
 .PHONY: build test run lint typecheck migrate up down docker-build docker-run train clean
 
 build:
+	pip install -r requirements-dev.txt
 	pip install -e .
 
 test:

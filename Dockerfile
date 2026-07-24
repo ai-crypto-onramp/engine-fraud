@@ -4,7 +4,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget build-esse
     rm -rf /var/lib/apt/lists/*
 COPY requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
-COPY . .
+COPY pyproject.toml ./
+COPY src/ ./src/
 RUN pip install --no-cache-dir --prefix=/install .
 
 FROM python:3.11-slim AS runtime
@@ -16,7 +17,7 @@ ENV PYTHONUNBUFFERED=1 \
 RUN groupadd --system --gid 1001 fraud && \
     useradd --system --uid 1001 --gid fraud --create-home --home-dir /home/fraud fraud
 COPY --from=builder /install /install
-COPY --from=builder /build /app
+COPY --from=builder /build/src/ /app/src/
 COPY migrations /app/migrations
 COPY feature_repo /app/feature_repo
 RUN chown -R fraud:fraud /app
