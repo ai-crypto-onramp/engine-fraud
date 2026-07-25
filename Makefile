@@ -31,10 +31,10 @@ down:
 	docker compose down
 
 docker-build:
-	docker build -t ai-crypto-onramp/fraud-engine .
+	docker build -t ai-crypto-onramp/engine-fraud .
 
 docker-run:
-	docker run --rm -p 8080:8080 ai-crypto-onramp/fraud-engine
+	docker run --rm -p 8080:8080 ai-crypto-onramp/engine-fraud
 
 clean:
 	rm -rf dist build *.egg-info .pytest_cache coverage.xml .coverage

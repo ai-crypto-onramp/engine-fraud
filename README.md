@@ -1,6 +1,6 @@
 # Fraud Detection
-![CI](https://github.com/ai-crypto-onramp/fraud-engine/actions/workflows/ci.yml/badge.svg)
-[![codecov](https://codecov.io/gh/ai-crypto-onramp/fraud-engine/branch/main/graph/badge.svg)](https://codecov.io/gh/ai-crypto-onramp/fraud-engine)
+![CI](https://github.com/ai-crypto-onramp/engine-fraud/actions/workflows/ci.yml/badge.svg)
+[![codecov](https://codecov.io/gh/ai-crypto-onramp/engine-fraud/branch/main/graph/badge.svg)](https://codecov.io/gh/ai-crypto-onramp/engine-fraud)
 
 ML scoring on payment + behavioral signals (chargeback/velocity models); feeds the policy engine.
 
@@ -236,7 +236,7 @@ Environment variables (12-factor; loaded at startup):
 | `DB_URL` | yes | — | PostgreSQL DSN (`postgresql://...`) |
 | `REDIS_URL` | yes | — | Redis URL for online feature store |
 | `KAFKA_BROKERS` | yes | — | comma-separated Kafka bootstrap brokers |
-| `KAFKA_CONSUMER_GROUP` | no | `fraud-engine` | consumer group id |
+| `KAFKA_CONSUMER_GROUP` | no | `engine-fraud` | consumer group id |
 | `MODEL_REGISTRY_URL` | yes | — | MLflow tracking URI |
 | `FEATURE_STORE_URL` | no | `redis://redis:6379` | Feast online store URL |
 | `SCORE_THRESHOLD_HIGH` | no | `0.75` | score ≥ → `high` band + immediate alert |
@@ -252,11 +252,11 @@ Environment variables (12-factor; loaded at startup):
 
 ```bash
 # Build the image
-docker build -t fraud-engine:dev .
+docker build -t engine-fraud:dev .
 
 # Run with dependencies (Postgres, Redis, Kafka, MLflow)
 docker compose up -d postgres redis kafka mlflow
-docker compose run --rm fraud-engine
+docker compose run --rm engine-fraud
 
 # Or run directly
 uv sync
