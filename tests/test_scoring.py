@@ -1,5 +1,5 @@
-from fraud_detection.models.schemas import BehavioralFeatures, DeviceInfo, Money, ScoreRequest
-from fraud_detection.scoring import (
+from fraud_engine.models.schemas import BehavioralFeatures, DeviceInfo, Money, ScoreRequest
+from fraud_engine.scoring import (
     StubModel,
     StubVelocityModel,
     deterministic_score,

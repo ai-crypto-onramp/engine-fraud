@@ -1,8 +1,8 @@
 import asyncio
 import json
 
-from fraud_detection.config import Settings
-from fraud_detection.consumers.kafka import (
+from fraud_engine.config import Settings
+from fraud_engine.consumers.kafka import (
     FraudConsumer,
     event_to_score_request,
     parse_payment_event,
@@ -62,9 +62,9 @@ async def test_consumer_run_noop_without_brokers() -> None:
 
 
 async def test_consumer_scoring_path_emits_audit() -> None:
-    from fraud_detection.app import _do_score
-    from fraud_detection.audit import AuditEmitter
-    from fraud_detection.models.schemas import BehavioralFeatures, DeviceInfo, Money, ScoreRequest
+    from fraud_engine.app import _do_score
+    from fraud_engine.audit import AuditEmitter
+    from fraud_engine.models.schemas import BehavioralFeatures, DeviceInfo, Money, ScoreRequest
 
     audit = AuditEmitter(db=None)
 
@@ -84,7 +84,7 @@ async def test_consumer_scoring_path_emits_audit() -> None:
 
 
 async def test_make_kafka_producer_returns_none_without_brokers() -> None:
-    from fraud_detection.audit import make_kafka_producer
+    from fraud_engine.audit import make_kafka_producer
     producer = await make_kafka_producer([])
     assert producer is None
 
@@ -108,7 +108,7 @@ async def test_consumer_handle_message_no_handler() -> None:
 
 
 async def test_app_starts_and_stops_consumer_without_brokers(monkeypatch) -> None:
-    from fraud_detection import app as app_module
+    from fraud_engine import app as app_module
 
     monkeypatch.delenv("KAFKA_BROKERS", raising=False)
     await app_module._start_kafka_consumer()
@@ -120,8 +120,8 @@ async def test_app_starts_and_stops_consumer_without_brokers(monkeypatch) -> Non
 async def test_app_starts_consumer_with_fake_broker(monkeypatch) -> None:
     import asyncio
 
-    from fraud_detection import app as app_module
-    from fraud_detection.consumers.kafka import FraudConsumer
+    from fraud_engine import app as app_module
+    from fraud_engine.consumers.kafka import FraudConsumer
 
     monkeypatch.setenv("KAFKA_BROKERS", "127.0.0.1:9092")
 

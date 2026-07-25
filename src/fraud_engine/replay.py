@@ -7,7 +7,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
-from fraud_detection.scoring import default_model_for_name
+from fraud_engine.scoring import default_model_for_name
 
 
 def load_audit(path: str) -> list[dict[str, Any]]:

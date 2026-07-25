@@ -1,4 +1,4 @@
-from fraud_detection.feature_store import (
+from fraud_engine.feature_store import (
     FEATURE_GROUP_FIELDS,
     InMemoryFeatureStore,
 )

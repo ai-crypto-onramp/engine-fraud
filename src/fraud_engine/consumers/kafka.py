@@ -18,7 +18,7 @@ except Exception:  # pragma: no cover - optional in tests
     _HAVE_AIOKAFKA = False
 
 
-log = logging.getLogger("fraud_detection.consumer")
+log = logging.getLogger("fraud_engine.consumer")
 
 
 def parse_payment_event(raw: bytes | str) -> dict[str, Any]:

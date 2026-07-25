@@ -1,6 +1,6 @@
 from datetime import UTC, datetime, timedelta, timezone
 
-from fraud_detection.features.engineering import (
+from fraud_engine.features.engineering import (
     StubIPLookupProvider,
     device_features,
     geo_velocity_kmh,

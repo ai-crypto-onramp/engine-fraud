@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from fraud_detection.scoring import (
+from fraud_engine.scoring import (
     ModelLoader,
     RealModel,
     StubModel,
@@ -90,8 +90,8 @@ def test_real_model_1d_raw_predict_proba() -> None:
 
 
 def test_score_request_with_real_model(tmp_path) -> None:
-    from fraud_detection.models.schemas import BehavioralFeatures, DeviceInfo, Money, ScoreRequest
-    from fraud_detection.scoring import score_request
+    from fraud_engine.models.schemas import BehavioralFeatures, DeviceInfo, Money, ScoreRequest
+    from fraud_engine.scoring import score_request
 
     _, est = _train_dummy(tmp_path)
     m = RealModel({"predictor": est, "feature_names": ["a", "b"]})

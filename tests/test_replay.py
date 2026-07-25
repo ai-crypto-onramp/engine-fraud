@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from fraud_detection.replay import load_audit, main, reconstruct
-from fraud_detection.scoring import StubModel
+from fraud_engine.replay import load_audit, main, reconstruct
+from fraud_engine.scoring import StubModel
 
 
 def test_reconstruct_matches_audit(tmp_path: Path) -> None:
@@ -33,7 +33,7 @@ def test_replay_cli(tmp_path: Path) -> None:
 
 
 def test_load_audit(tmp_path: Path) -> None:
-    from fraud_detection.replay import load_audit
+    from fraud_engine.replay import load_audit
     p = tmp_path / "a.jsonl"
     p.write_text(json.dumps({"tx_id": "x"}) + "\n" + json.dumps({"tx_id": "y"}) + "\n")
     records = load_audit(str(p))

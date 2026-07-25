@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "fraud-detection"
+name = "fraud-engine"
 version = "0.1.0"
 requires-python = ">=3.11"
 
@@ -12,12 +12,12 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-addopts = "-q --cov=fraud_detection --cov-report=term-missing --cov-report=xml:coverage.xml"
+addopts = "-q --cov=fraud_engine --cov-report=term-missing --cov-report=xml:coverage.xml"
 testpaths = ["tests"]
 
 [tool.coverage.run]
 branch = true
-source = ["src/fraud_detection"]
+source = ["src/fraud_engine"]
 
 [tool.coverage.report]
 fail_under = 80
@@ -37,7 +37,7 @@ ignore = ["E501", "B008"]
 
 [tool.mypy]
 python_version = "3.11"
-packages = ["src/fraud_detection"]
+packages = ["src/fraud_engine"]
 ignore_missing_imports = true
 warn_unused_ignores = false
 warn_redundant_casts = true

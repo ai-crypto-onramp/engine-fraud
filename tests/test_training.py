@@ -1,15 +1,15 @@
 import json
 from pathlib import Path
 
-from fraud_detection.config import Settings
-from fraud_detection.registry import ModelRegistry
-from fraud_detection.training.scheduler import PromotionGate, RetrainScheduler
-from fraud_detection.training.train_chargeback import (
+from fraud_engine.config import Settings
+from fraud_engine.registry import ModelRegistry
+from fraud_engine.training.scheduler import PromotionGate, RetrainScheduler
+from fraud_engine.training.train_chargeback import (
     compute_metrics,
     train_chargeback,
     train_velocity,
 )
-from fraud_detection.training.train_velocity import main as velocity_main
+from fraud_engine.training.train_velocity import main as velocity_main
 
 
 def test_compute_metrics_handles_empty() -> None:

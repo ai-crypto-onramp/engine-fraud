@@ -18,8 +18,8 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - run: pip install -e .
       - run: ruff check src tests feature_repo
-      - run: mypy src/fraud_detection
-      - run: pytest -q --cov=fraud_detection --cov-report=xml:coverage.xml
+      - run: mypy src/fraud_engine
+      - run: pytest -q --cov=fraud_engine --cov-report=xml:coverage.xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:

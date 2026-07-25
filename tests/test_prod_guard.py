@@ -1,6 +1,6 @@
 import pytest
 
-from fraud_detection import app as app_module
+from fraud_engine import app as app_module
 
 
 def test_prod_guard_dev_mode_skips(monkeypatch: pytest.MonkeyPatch) -> None:

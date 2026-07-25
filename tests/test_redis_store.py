@@ -13,7 +13,7 @@ class FakeRedis:
 
 
 def test_redis_store_set_and_get(monkeypatch) -> None:
-    from fraud_detection import db as db_module
+    from fraud_engine import db as db_module
     fake = FakeRedis()
     monkeypatch.setattr(db_module, "_HAVE_REDIS", True)
     monkeypatch.setattr(db_module.redis.Redis, "from_url", classmethod(lambda cls, *a, **kw: fake))  # type: ignore[union-attr]

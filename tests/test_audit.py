@@ -1,5 +1,5 @@
-from fraud_detection.audit import AuditEmitter, build_audit_payload
-from fraud_detection.models.schemas import (
+from fraud_engine.audit import AuditEmitter, build_audit_payload
+from fraud_engine.models.schemas import (
     BehavioralFeatures,
     DeviceInfo,
     Money,

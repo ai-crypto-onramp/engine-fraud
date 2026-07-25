@@ -1,17 +1,17 @@
 from httpx import ASGITransport, AsyncClient
 
-from fraud_detection.app import app
-from fraud_detection.audit import AuditEmitter
-from fraud_detection.config import Settings
-from fraud_detection.feature_store import InMemoryFeatureStore
-from fraud_detection.models.schemas import (
+from fraud_engine.app import app
+from fraud_engine.audit import AuditEmitter
+from fraud_engine.config import Settings
+from fraud_engine.feature_store import InMemoryFeatureStore
+from fraud_engine.models.schemas import (
     BehavioralFeatures,
     DeviceInfo,
     Money,
     ScoreRequest,
 )
-from fraud_detection.registry import ModelRegistry
-from fraud_detection.scoring import StubModel
+from fraud_engine.registry import ModelRegistry
+from fraud_engine.scoring import StubModel
 
 
 class FakeDB:
@@ -85,7 +85,7 @@ async def test_models_endpoint() -> None:
 
 async def test_feedback_endpoint_valid_returns_204(monkeypatch) -> None:
     fake = FakeDB()
-    monkeypatch.setattr("fraud_detection.app._DEFAULT_DB", fake)
+    monkeypatch.setattr("fraud_engine.app._DEFAULT_DB", fake)
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         r = await client.post("/v1/fraud/feedback", json={
             "tx_id": "tx_1", "outcome": "CHARGEBACK", "reason_code": "10.4",
@@ -106,7 +106,7 @@ async def test_feedback_endpoint_invalid_outcome_422() -> None:
 
 async def test_feedback_endpoint_idempotent(monkeypatch) -> None:
     fake = FakeDB()
-    monkeypatch.setattr("fraud_detection.app._DEFAULT_DB", fake)
+    monkeypatch.setattr("fraud_engine.app._DEFAULT_DB", fake)
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         r1 = await client.post("/v1/fraud/feedback", json={
             "tx_id": "tx_2", "outcome": "FRAUD",
@@ -129,7 +129,7 @@ def test_audit_emitter_emits_exactly_once() -> None:
         ip="1.2.3.4",
         behavioral_features=BehavioralFeatures(),
     )
-    from fraud_detection.models.schemas import ScoreResponse, TopFeature
+    from fraud_engine.models.schemas import ScoreResponse, TopFeature
     resp = ScoreResponse(score=0.5, risk_band="MEDIUM", model_version="m@v1",
                         variant="champion", top_features=[TopFeature(name="a", shap=0.1)],
                         scored_at="2026-07-13T10:00:00Z")

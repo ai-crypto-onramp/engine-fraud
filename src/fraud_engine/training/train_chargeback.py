@@ -17,7 +17,7 @@ except Exception:  # pragma: no cover - optional in tests
     mlflow = None  # type: ignore
     _HAVE_MLFLOW = False
 
-from fraud_detection.scoring import StubModel
+from fraud_engine.scoring import StubModel
 
 
 def _now_iso() -> str:

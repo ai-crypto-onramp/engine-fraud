@@ -1,7 +1,7 @@
-from fraud_detection.config import Settings, get_settings
-from fraud_detection.db import PostgresStore
-from fraud_detection.registry import ModelRegistry
-from fraud_detection.scoring import ModelLoader
+from fraud_engine.config import Settings, get_settings
+from fraud_engine.db import PostgresStore
+from fraud_engine.registry import ModelRegistry
+from fraud_engine.scoring import ModelLoader
 
 
 def test_config_defaults() -> None:

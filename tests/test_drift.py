@@ -1,4 +1,4 @@
-from fraud_detection.observability.drift import breached_features, drift_report, ks_statistic, psi
+from fraud_engine.observability.drift import breached_features, drift_report, ks_statistic, psi
 
 
 def test_psi_identical_distributions_zero() -> None:
@@ -38,8 +38,8 @@ def test_breached_features_list() -> None:
 
 
 def test_drift_monitor_emits_alert_and_persists() -> None:
-    from fraud_detection.config import get_settings
-    from fraud_detection.observability.monitoring import AlertSink, DriftMonitor
+    from fraud_engine.config import get_settings
+    from fraud_engine.observability.monitoring import AlertSink, DriftMonitor
     sink = AlertSink()
     mon = DriftMonitor(get_settings(), db=None, alert_sink=sink)
     base = {"f1": [0.1, 0.2, 0.3, 0.4, 0.5] * 50}

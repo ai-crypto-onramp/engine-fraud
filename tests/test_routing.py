@@ -1,4 +1,4 @@
-from fraud_detection.models.routing import pick_variant, resolve_split, risk_band, stable_hash_unit
+from fraud_engine.models.routing import pick_variant, resolve_split, risk_band, stable_hash_unit
 
 
 def test_risk_band_thresholds() -> None:

@@ -30,7 +30,7 @@ init_tracing()
 app = FastAPI(title="Fraud Detection")
 instrument_app(app)
 
-log = logging.getLogger("fraud_detection.app")
+log = logging.getLogger("fraud_engine.app")
 
 _DEFAULT_SETTINGS = get_settings()
 _DEV_MODE = _DEFAULT_SETTINGS.dev_mode

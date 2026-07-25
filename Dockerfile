@@ -29,4 +29,4 @@ USER fraud
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget -qO- http://localhost:8080/healthz || exit 1
-CMD ["uvicorn", "fraud_detection.app:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "fraud_engine.app:app", "--host", "0.0.0.0", "--port", "8080"]

@@ -1,5 +1,5 @@
-from fraud_detection.observability.drift import ks_statistic, psi
-from fraud_detection.scoring import StubModel, feature_vector, now_utc_iso
+from fraud_engine.observability.drift import ks_statistic, psi
+from fraud_engine.scoring import StubModel, feature_vector, now_utc_iso
 
 
 def test_feature_vector_pads_missing() -> None:
@@ -36,11 +36,11 @@ def test_psi_zero_range_returns_zero() -> None:
 
 
 def test_drift_report_skips_missing_baseline() -> None:
-    from fraud_detection.observability.drift import drift_report
+    from fraud_engine.observability.drift import drift_report
     report = drift_report({}, {"f1": [0.1, 0.2, 0.3]}, psi_threshold=0.2)
     assert report == []
 
 
 def test_breached_features_empty() -> None:
-    from fraud_detection.observability.drift import breached_features
+    from fraud_engine.observability.drift import breached_features
     assert breached_features([]) == []

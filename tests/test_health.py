@@ -1,6 +1,6 @@
 from httpx import ASGITransport, AsyncClient
 
-from fraud_detection.app import READINESS_CHECKS, app, classify_readiness, readiness_report
+from fraud_engine.app import READINESS_CHECKS, app, classify_readiness, readiness_report
 
 
 async def test_healthz() -> None:
@@ -32,7 +32,7 @@ def test_readiness_report_all_ok() -> None:
 
 def test_readiness_report_with_failure(monkeypatch) -> None:
     monkeypatch.setattr(
-        "fraud_detection.app.READINESS_CHECKS",
+        "fraud_engine.app.READINESS_CHECKS",
         [("db", lambda: True), ("mq", lambda: False)],
     )
     results, failed, total = readiness_report()

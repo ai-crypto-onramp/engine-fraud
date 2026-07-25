@@ -22,7 +22,7 @@ def test_feature_store_yaml_exists() -> None:
     yaml = Path(__file__).resolve().parents[1] / "feature_repo" / "feature_store.yaml"
     assert yaml.exists()
     text = yaml.read_text()
-    assert "fraud_detection" in text
+    assert "fraud_engine" in text
     assert "redis" in text
 
 

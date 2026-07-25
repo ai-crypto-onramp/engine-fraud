@@ -2,9 +2,9 @@ import json
 from datetime import UTC, datetime, timezone
 from pathlib import Path
 
-from fraud_detection.feature_store import InMemoryFeatureStore
-from fraud_detection.features.backfill import backfill, parse_events
-from fraud_detection.features.engineering import StubIPLookupProvider
+from fraud_engine.feature_store import InMemoryFeatureStore
+from fraud_engine.features.backfill import backfill, parse_events
+from fraud_engine.features.engineering import StubIPLookupProvider
 
 
 def _events_file(tmp_path: Path) -> str:
@@ -51,11 +51,11 @@ def test_backfill_populates_feature_store(tmp_path: Path) -> None:
 
 
 def test_backfill_cli_main(tmp_path: Path, monkeypatch) -> None:
-    from fraud_detection.features import backfill as bf_module
+    from fraud_engine.features import backfill as bf_module
     events_path = _events_file(tmp_path)
     offline_dir = tmp_path / "offline"
     monkeypatch.setattr(bf_module, "get_settings", lambda: __import__(
-        "fraud_detection.config", fromlist=["Settings"]).Settings())
+        "fraud_engine.config", fromlist=["Settings"]).Settings())
     rc = bf_module.main(["--since", "2026-01-01", "--events", events_path,
                          "--offline-dir", str(offline_dir)])
     assert rc == 0

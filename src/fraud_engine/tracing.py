@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 import os
 
-log = logging.getLogger("fraud_detection.tracing")
+log = logging.getLogger("fraud_engine.tracing")
 
 _INITIALIZED = False
 

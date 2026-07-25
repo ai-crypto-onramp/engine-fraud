@@ -1,6 +1,6 @@
 # Fraud Detection
-![CI](https://github.com/ai-crypto-onramp/fraud-detection/actions/workflows/ci.yml/badge.svg)
-[![codecov](https://codecov.io/gh/ai-crypto-onramp/fraud-detection/branch/main/graph/badge.svg)](https://codecov.io/gh/ai-crypto-onramp/fraud-detection)
+![CI](https://github.com/ai-crypto-onramp/fraud-engine/actions/workflows/ci.yml/badge.svg)
+[![codecov](https://codecov.io/gh/ai-crypto-onramp/fraud-engine/branch/main/graph/badge.svg)](https://codecov.io/gh/ai-crypto-onramp/fraud-engine)
 
 ML scoring on payment + behavioral signals (chargeback/velocity models); feeds the policy engine.
 
@@ -236,7 +236,7 @@ Environment variables (12-factor; loaded at startup):
 | `DB_URL` | yes | — | PostgreSQL DSN (`postgresql://...`) |
 | `REDIS_URL` | yes | — | Redis URL for online feature store |
 | `KAFKA_BROKERS` | yes | — | comma-separated Kafka bootstrap brokers |
-| `KAFKA_CONSUMER_GROUP` | no | `fraud-detection` | consumer group id |
+| `KAFKA_CONSUMER_GROUP` | no | `fraud-engine` | consumer group id |
 | `MODEL_REGISTRY_URL` | yes | — | MLflow tracking URI |
 | `FEATURE_STORE_URL` | no | `redis://redis:6379` | Feast online store URL |
 | `SCORE_THRESHOLD_HIGH` | no | `0.75` | score ≥ → `high` band + immediate alert |
@@ -252,11 +252,11 @@ Environment variables (12-factor; loaded at startup):
 
 ```bash
 # Build the image
-docker build -t fraud-detection:dev .
+docker build -t fraud-engine:dev .
 
 # Run with dependencies (Postgres, Redis, Kafka, MLflow)
 docker compose up -d postgres redis kafka mlflow
-docker compose run --rm fraud-detection
+docker compose run --rm fraud-engine
 
 # Or run directly
 uv sync
@@ -284,7 +284,7 @@ make up            # docker compose up -d (Postgres, Redis, Kafka, MLflow, servi
 make migrate       # apply migrations/001_init.sql against DB_URL
 make test          # pytest with coverage
 make lint          # ruff check src tests feature_repo
-make typecheck     # mypy src/fraud_detection
+make typecheck     # mypy src/fraud_engine
 make train         # run chargeback + velocity training entrypoints
 make docker-build  # build the multi-stage Docker image
 make clean         # remove build/coverage artifacts
@@ -293,7 +293,7 @@ make clean         # remove build/coverage artifacts
 ### Source layout
 
 ```
-src/fraud_detection/
+src/fraud_engine/
   app.py             FastAPI app (healthz, readyz, /v1/fraud/* endpoints)
   config.py          12-factor settings (env vars)
   db.py              Postgres + Redis connection helpers and queries

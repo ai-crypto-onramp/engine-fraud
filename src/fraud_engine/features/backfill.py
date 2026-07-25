@@ -10,9 +10,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from fraud_detection.config import get_settings
-from fraud_detection.feature_store import InMemoryFeatureStore
-from fraud_detection.features.engineering import (
+from fraud_engine.config import get_settings
+from fraud_engine.feature_store import InMemoryFeatureStore
+from fraud_engine.features.engineering import (
     StubIPLookupProvider,
     device_features,
     geolocation_features,

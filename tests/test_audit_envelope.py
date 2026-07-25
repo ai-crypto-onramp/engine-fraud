@@ -1,7 +1,7 @@
 import json
 from unittest.mock import AsyncMock, MagicMock
 
-from fraud_detection.audit import (
+from fraud_engine.audit import (
     AuditEmitter,
     build_audit_payload,
     build_envelope,

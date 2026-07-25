@@ -1,6 +1,6 @@
 import os
 
-from fraud_detection.config import Settings, get_settings, require_runtime_settings
+from fraud_engine.config import Settings, get_settings, require_runtime_settings
 
 
 def test_settings_loads_from_env(monkeypatch) -> None:

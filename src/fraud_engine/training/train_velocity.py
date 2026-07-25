@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 
-from fraud_detection.training.train_chargeback import train_velocity as _train_velocity
+from fraud_engine.training.train_chargeback import train_velocity as _train_velocity
 
 
 def main(argv: list[str] | None = None) -> int:
