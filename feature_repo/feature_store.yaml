@@ -1,4 +1,4 @@
-project: fraud_detection
+project: fraud_engine
 registry: data/registry.db
 provider: local
 online_store:
