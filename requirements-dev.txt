@@ -15,4 +15,8 @@ mypy
 mlflow
 
 # Optional feature store (src/fraud_detection/feature_store.py guards the import).
-feast[redis]
+# Pin feast to a modern release: feast <=0.39 pulls pandavro~=1.5.0 which requires
+# pandas<2 and conflicts with shap's pandas, causing pip to backtrack down to
+# feast 0.28 whose setup.py is broken on modern pip (CI failure). >=0.40 dropped
+# the pandavro dependency.
+feast[redis]>=0.40
