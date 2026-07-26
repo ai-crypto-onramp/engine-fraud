@@ -5,10 +5,11 @@ import logging
 import os
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 
 from .audit import AuditEmitter, make_kafka_producer
+from .authtoken import require_token
 from .config import Settings, get_settings
 from .consumers.kafka import FraudConsumer
 from .db import PostgresStore, RedisStore
@@ -29,6 +30,15 @@ init_tracing()
 
 app = FastAPI(title="Fraud Detection")
 instrument_app(app)
+
+
+@app.middleware("http")
+async def _service_token_auth(request: Request, call_next):
+    try:
+        await require_token(request)
+    except HTTPException as exc:
+        return JSONResponse(status_code=exc.status_code, content=exc.detail)
+    return await call_next(request)
 
 log = logging.getLogger("fraud_engine.app")
 
