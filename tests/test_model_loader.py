@@ -155,6 +155,7 @@ def test_model_loader_per_name_version_env(tmp_path, monkeypatch: pytest.MonkeyP
 def test_model_loader_falls_back_to_stub_when_unavailable(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setenv("DEV_MODE", "1")
     monkeypatch.delenv("MODEL_PATH", raising=False)
     monkeypatch.delenv("MODEL_PATH_CHARGEBACK_XGB_V9_9_9", raising=False)
     loader = ModelLoader(registry_url=None)
@@ -184,12 +185,36 @@ def test_model_loader_invalidate(tmp_path, monkeypatch: pytest.MonkeyPatch) -> N
 def test_model_loader_load_artifact_failure_falls_back_to_stub(
     tmp_path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setenv("DEV_MODE", "1")
     bad = tmp_path / "bad.joblib"
     bad.write_bytes(b"not a pickle")
     monkeypatch.setenv("MODEL_PATH", str(bad))
     loader = ModelLoader(registry_url=None)
     model = loader.get("chargeback-xgb", "v1")
     assert isinstance(model, StubModel)
+
+
+def test_model_loader_load_artifact_failure_fatal_in_prod(
+    tmp_path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("DEV_MODE", raising=False)
+    bad = tmp_path / "bad.joblib"
+    bad.write_bytes(b"not a pickle")
+    monkeypatch.setenv("MODEL_PATH", str(bad))
+    loader = ModelLoader(registry_url=None)
+    with pytest.raises(RuntimeError):
+        loader.get("chargeback-xgb", "v1")
+
+
+def test_model_loader_no_source_fatal_in_prod(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("DEV_MODE", raising=False)
+    monkeypatch.delenv("MODEL_PATH", raising=False)
+    monkeypatch.delenv("MODEL_PATH_CHARGEBACK_XGB_V9_9_9", raising=False)
+    loader = ModelLoader(registry_url=None)
+    with pytest.raises(RuntimeError):
+        loader.get("chargeback-xgb", "v9.9.9")
 
 
 def test_load_model_artifact_from_registry(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:

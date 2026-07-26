@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import os
 import pickle
 import threading
@@ -12,6 +13,8 @@ import numpy as np
 
 from .models.routing import pick_variant, resolve_split, risk_band
 from .models.schemas import ScoreRequest, ScoreResponse, TopFeature
+
+log = logging.getLogger("fraud_engine.scoring")
 
 
 class StubModel:
@@ -184,6 +187,10 @@ def _load_artifact_file(path: str) -> Any:
             return pickle.load(fh)
 
 
+def _is_dev_mode() -> bool:
+    return os.environ.get("DEV_MODE") == "1"
+
+
 class ModelLoader:
     def __init__(self, registry_url: str | None = None) -> None:
         self.registry_url = registry_url
@@ -218,22 +225,36 @@ class ModelLoader:
             try:
                 artifact = _load_artifact_file(path)
                 return RealModel(artifact, name=name, version=version)
-            except Exception:
-                return default_model_for_name(name)
+            except Exception as exc:
+                if _is_dev_mode():
+                    log.warning("model artifact load failed (%s@%s): %s — falling back to StubModel (DEV_MODE=1)", name, version, exc)
+                    return default_model_for_name(name)
+                raise RuntimeError(f"model artifact load failed for {name}@{version}: {exc}") from exc
         default_path = os.environ.get("MODEL_PATH")
         if default_path and os.path.exists(default_path):
             try:
                 artifact = _load_artifact_file(default_path)
                 return RealModel(artifact, name=name, version=version)
-            except Exception:
-                return default_model_for_name(name)
+            except Exception as exc:
+                if _is_dev_mode():
+                    log.warning("model artifact load failed (%s@%s): %s — falling back to StubModel (DEV_MODE=1)", name, version, exc)
+                    return default_model_for_name(name)
+                raise RuntimeError(f"model artifact load failed for {name}@{version}: {exc}") from exc
         if self.registry_url:
             try:
                 artifact = load_model_artifact(name, version, registry_url=self.registry_url)
                 return RealModel(artifact, name=name, version=version)
-            except Exception:
-                return default_model_for_name(name)
-        return default_model_for_name(name)
+            except Exception as exc:
+                if _is_dev_mode():
+                    log.warning("model registry fetch failed (%s@%s): %s — falling back to StubModel (DEV_MODE=1)", name, version, exc)
+                    return default_model_for_name(name)
+                raise RuntimeError(f"model registry fetch failed for {name}@{version}: {exc}") from exc
+        if _is_dev_mode():
+            return default_model_for_name(name)
+        raise RuntimeError(
+            f"no model artifact source available for {name}@{version} — set MODEL_PATH or MODEL_REGISTRY_URL, "
+            "or DEV_MODE=1 for local dev"
+        )
 
     def register_stage(self, name: str, stage: str, version: str) -> None:
         with self._lock:

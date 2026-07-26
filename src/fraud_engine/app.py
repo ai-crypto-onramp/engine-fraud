@@ -8,11 +8,11 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import JSONResponse
 
-from .audit import AuditEmitter
+from .audit import AuditEmitter, make_kafka_producer
 from .config import Settings, get_settings
 from .consumers.kafka import FraudConsumer
 from .db import PostgresStore, RedisStore
-from .feature_store import FeatureStoreClient, InMemoryFeatureStore
+from .feature_store import FeatureStoreClient, InMemoryFeatureStore, build_feature_store
 from .models.schemas import (
     FeedbackRequest,
     ModelInfo,
@@ -62,36 +62,137 @@ async def _enforce_prod_requirements() -> None:
 
 _DEFAULT_DB = PostgresStore(_DEFAULT_SETTINGS.db_url)
 _DEFAULT_REDIS = RedisStore(_DEFAULT_SETTINGS.redis_url)
-_DEFAULT_FEATURE_STORE = InMemoryFeatureStore(_DEFAULT_SETTINGS)
+if _DEV_MODE:
+    _DEFAULT_FEATURE_STORE: FeatureStoreClient = InMemoryFeatureStore(_DEFAULT_SETTINGS)
+else:
+    _DEFAULT_FEATURE_STORE = build_feature_store(_DEFAULT_SETTINGS)
 _DEFAULT_LOADER = ModelLoader(_DEFAULT_SETTINGS.model_registry_url)
 _DEFAULT_REGISTRY = ModelRegistry(_DEFAULT_SETTINGS, db=None, loader=_DEFAULT_LOADER)
 _DEFAULT_AUDIT = AuditEmitter(db=None, audit_topic=_DEFAULT_SETTINGS.audit_topic)
 _DEFAULT_ALERTS = AlertSink()
 _DEFAULT_DRIFT = DriftMonitor(_DEFAULT_SETTINGS, db=None, alert_sink=_DEFAULT_ALERTS)
 
+_kafka_producer: Any = None
+
 # Kafka consumer task handle (started on startup when KAFKA_BROKERS is set).
 _consumer_task: asyncio.Task[Any] | None = None
 _consumer: FraudConsumer | None = None
 
 
-def db_ready() -> bool: return True
-def mq_ready() -> bool: return True
-def rules_ready() -> bool: return True
-def features_ready() -> bool: return True
-def scoring_ready() -> bool: return True
-def kyt_ready() -> bool: return True
-def ledger_ready() -> bool: return True
-def pricing_ready() -> bool: return True
-def identity_ready() -> bool: return True
-def policy_ready() -> bool: return True
-def notification_ready() -> bool: return True
-def audit_ready() -> bool: return True
-def rail_ready() -> bool: return True
-def exchange_ready() -> bool: return True
-def blockchain_ready() -> bool: return True
-def mpc_ready() -> bool: return True
-def wallet_ready() -> bool: return True
-def onboarding_ready() -> bool: return True
+def _scoring_model_is_real() -> bool:
+    try:
+        model = _DEFAULT_REGISTRY.get_model("chargeback-xgb", "v3.2.0-stub")
+    except Exception:
+        return False
+    return type(model).__name__ != "StubModel" and type(model).__name__ != "StubVelocityModel"
+
+
+def db_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return _DEFAULT_DB.ping()
+
+
+def mq_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return bool(_DEFAULT_SETTINGS.kafka_brokers) and _kafka_producer is not None
+
+
+def rules_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return True
+
+
+def features_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return _DEFAULT_FEATURE_STORE.ping()
+
+
+def scoring_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return _scoring_model_is_real()
+
+
+def kyt_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return False
+
+
+def ledger_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return False
+
+
+def pricing_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return False
+
+
+def identity_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return False
+
+
+def policy_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return False
+
+
+def notification_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return False
+
+
+def audit_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return bool(_DEFAULT_SETTINGS.kafka_brokers) and _kafka_producer is not None
+
+
+def rail_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return False
+
+
+def exchange_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return False
+
+
+def blockchain_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return False
+
+
+def mpc_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return False
+
+
+def wallet_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return False
+
+
+def onboarding_ready() -> bool:
+    if _DEV_MODE:
+        return True
+    return False
 
 READINESS_CHECKS = [
     ("db", db_ready),
@@ -163,9 +264,35 @@ async def _start_kafka_consumer() -> None:
     )
 
 
+@app.on_event("startup")
+async def _start_audit_kafka_producer() -> None:
+    """Start the Kafka audit producer when KAFKA_BROKERS is set.
+
+    In production the audit envelope must be published to the audit.v1 topic;
+    without a broker the AuditEmitter silently keeps events in memory (which
+    is only acceptable in DEV_MODE).
+    """
+    global _kafka_producer
+    brokers = _DEFAULT_SETTINGS.kafka_brokers
+    if not brokers:
+        if not _DEV_MODE:
+            log.error("KAFKA_BROKERS unset in production: audit events will NOT be published")
+        return
+    try:
+        _kafka_producer = await make_kafka_producer(brokers)
+        _DEFAULT_AUDIT.producer = _kafka_producer
+        log.info("fraud audit kafka producer started: brokers=%s topic=%s",
+                 ",".join(brokers), _DEFAULT_SETTINGS.audit_topic)
+    except Exception as exc:
+        if _DEV_MODE:
+            log.warning("audit kafka producer failed to start (DEV_MODE=1): %s", exc)
+        else:
+            log.error("audit kafka producer failed to start in production: %s", exc)
+
+
 @app.on_event("shutdown")
 async def _stop_kafka_consumer() -> None:
-    global _consumer_task, _consumer
+    global _consumer_task, _consumer, _kafka_producer
     task = _consumer_task
     _consumer_task = None
     if task is not None and not task.done():
@@ -177,6 +304,12 @@ async def _stop_kafka_consumer() -> None:
     if _consumer is not None:
         await _consumer.stop()
         _consumer = None
+    if _kafka_producer is not None:
+        try:
+            await _kafka_producer.stop()
+        except Exception:
+            pass
+        _kafka_producer = None
 
 
 async def _async_score_handler(req: ScoreRequest) -> ScoreResponse:
